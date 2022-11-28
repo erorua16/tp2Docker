@@ -1,8 +1,47 @@
-version: "3.9"
+version: '3'
+
 services:
-  web:
-    build: .
-    ports:
-      - "8000:5000"
-  redis:
-    image: "redis:alpine"
+    php-cli:
+        build: ./php-cli/
+        image: php:7.0-fpm
+        container_name: php-container
+        expose:
+            - 9000
+        volumes_from:
+            - wordpress
+        links:
+            - mysql
+    nginx:
+        build: ./nginx/
+        image: nginx:latest
+        container_name: nginx-container
+        ports:
+            - '80:80'
+        volumes_from:
+            - wordpress
+        volumes:
+            - ./logs/nginx:/var/log/nginx
+        links:
+            - php-cli
+        restart: always
+    mysql:
+        image: mariadb
+        container_name: mysql-container
+        expose:
+            - "3306"
+        ports:
+            - '3306:3306'
+        volumes:
+            - ./db-data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_USER: username
+            MYSQL_PASSWORD: secret
+            MYSQL_DATABASE: wordpress
+        restart: always
+    wordpress:   
+        image: php:7.0-fpm  
+        container_name: wordpress-container 
+        volumes:  
+        - ./www/html/:/var/www/html/  
+        command: "true"
