@@ -9,7 +9,7 @@ services:
             - 9000
         volumes_from:
             - wordpress
-        links:
+        depends_on:
             - mysql
     nginx:
         build: ./nginx/
@@ -21,7 +21,7 @@ services:
             - wordpress
         volumes:
             - ./logs/nginx:/var/log/nginx
-        links:
+        depends_on:
             - php-cli
         restart: always
     mysql:
@@ -43,5 +43,5 @@ services:
         image: php:7.0-fpm  
         container_name: wordpress-container 
         volumes:  
-        - ./www/html/:/var/www/html/  
+            - ./www/html/:/var/www/html/  
         command: "true"
